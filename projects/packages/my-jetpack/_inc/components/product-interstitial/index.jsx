@@ -54,6 +54,7 @@ import videoPressImage from './videopress.png';
  * @param {number} [props.directCheckout]        - Whether to go straight to the checkout page, e.g. for products with usage tiers
  * @param {boolean} [props.highlightLastFeature] - Whether to highlight the last feature in the list of features
  * @param {object} [props.ctaCallback]           - Callback when the product CTA is clicked. Triggered before any activation/checkout process occurs
+ * @param {string} [props.feature]               - The feature to highlight in the product detail card
  * @returns {object}                               ProductInterstitial react component.
  */
 export default function ProductInterstitial( {
@@ -71,6 +72,7 @@ export default function ProductInterstitial( {
 	directCheckout = false,
 	highlightLastFeature = false,
 	ctaCallback = null,
+	feature = null,
 } ) {
 	const { detail } = useProduct( slug );
 	const { detail: bundleDetail } = useProduct( bundle );
@@ -143,7 +145,13 @@ export default function ProductInterstitial( {
 				{ productId: slug },
 				{
 					onSettled: activatedProduct => {
-						const postCheckoutUrl = activatedProduct?.post_checkout_url || myJetpackCheckoutUri;
+						let postCheckoutUrl = activatedProduct?.post_checkout_url || myJetpackCheckoutUri;
+
+						// If the interstitial is highlighting a specific feature, use the post checkout URL for that feature, if available.
+						if ( feature && activatedProduct?.post_checkout_urls_by_feature?.[ feature ] ) {
+							postCheckoutUrl = activatedProduct.post_checkout_urls_by_feature[ feature ];
+						}
+
 						// there is a separate hasRequiredTier, but it is not implemented
 						const hasPaidPlanForProduct = product?.hasPaidPlanForProduct;
 						const isFree = tier
@@ -181,13 +189,14 @@ export default function ProductInterstitial( {
 			);
 		},
 		[
+			myJetpackCheckoutUri,
+			feature,
+			ctaCallback,
+			slug,
 			directCheckout,
 			activate,
-			navigateToMyJetpackOverviewPage,
-			slug,
-			myJetpackCheckoutUri,
-			ctaCallback,
 			handleRegisterSite,
+			navigateToMyJetpackOverviewPage,
 		]
 	);
 
