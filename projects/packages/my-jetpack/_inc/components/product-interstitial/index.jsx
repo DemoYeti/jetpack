@@ -78,13 +78,20 @@ export default function ProductInterstitial( {
 	const { detail: bundleDetail } = useProduct( bundle );
 	const { activate, isPending: isActivating } = useActivate( slug );
 
+	// Get the post activation URL for the product.
+	let redirectUri = detail?.postActivationUrl || null;
+	// If the interstitial is highlighting a specific feature, use the post checkout URL for that feature, if available.
+	if ( feature && detail?.postActivationUrlsByFeature?.[ feature ] ) {
+		redirectUri = detail.postActivationUrlsByFeature[ feature ];
+	}
+
 	const { isUpgradableByBundle, tiers, pricingForUi } = detail;
 	const { recordEvent } = useAnalytics();
 	const { onClickGoBack } = useGoBack( { slug } );
 	const { myJetpackCheckoutUri = '' } = getMyJetpackWindowInitialState();
 	const { siteIsRegistering, handleRegisterSite } = useMyJetpackConnection( {
 		skipUserConnection: true,
-		redirectUri: detail.postActivationUrl ?? null,
+		redirectUri,
 	} );
 	const showBundledTOS = ! hideTOS && !! bundle;
 	const productName = detail?.title;
@@ -172,8 +179,8 @@ export default function ProductInterstitial( {
 						// If no purchase is needed, redirect the user to the product screen.
 						if ( ! needsPurchase ) {
 							// for free products, we still initiate the site connection
-							handleRegisterSite().then( redirectUri => {
-								if ( ! redirectUri ) {
+							handleRegisterSite().then( postRegisterRedirectUri => {
+								if ( ! postRegisterRedirectUri ) {
 									// Fall back to the My Jetpack overview page.
 									return navigateToMyJetpackOverviewPage();
 								}
@@ -234,6 +241,7 @@ export default function ProductInterstitial( {
 							trackProductButtonClick={ trackProductOrBundleClick }
 							preferProductName={ preferProductName }
 							isFetching={ isActivating || siteIsRegistering }
+							feature={ feature }
 						/>
 					) : (
 						<Container
@@ -384,7 +392,12 @@ export { default as JetpackAiInterstitial } from './jetpack-ai';
  * @returns {object} ProtectInterstitial react component.
  */
 export function ProtectInterstitial() {
-	return <ProductInterstitial slug="protect" installsPlugin={ true } />;
+	// Get the feature query parameter from the URL.
+	const queryString = window.location.search;
+	const searchParams = new URLSearchParams( queryString );
+	const feature = searchParams.get( 'feature' );
+
+	return <ProductInterstitial slug="protect" feature={ feature } installsPlugin={ true } />;
 }
 
 /**
