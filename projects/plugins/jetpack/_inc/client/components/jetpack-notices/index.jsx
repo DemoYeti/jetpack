@@ -30,14 +30,11 @@ import {
 	userCanConnectSite,
 	userIsSubscriber,
 	getConnectionErrors,
-	getSiteAdminUrl,
 	isWoASite,
 } from 'state/initial-state';
 import { getLicensingError, clearLicensingError } from 'state/licensing';
-import { getModule } from 'state/modules';
 import { getSiteDataErrors } from 'state/site';
 import { isPluginActive } from 'state/site/plugins';
-import { StartFreshDeprecationWarning } from '../../writing/custom-css';
 import DismissableNotices from './dismissable';
 import JetpackConnectionErrors from './jetpack-connection-errors';
 import PlanConflictWarning from './plan-conflict-warning';
@@ -272,11 +269,7 @@ class JetpackNotices extends React.Component {
 						onDismissClick={ this.props.clearLicensingError }
 					/>
 				) }
-				{ this.props.startFreshEnabled && (
-					<SimpleNotice status="is-warning" showDismiss={ false }>
-						<StartFreshDeprecationWarning siteAdminUrl={ this.props.siteAdminUrl } />
-					</SimpleNotice>
-				) }
+
 				{ showGoogleAnalyticsNotice && (
 					<SimpleNotice
 						status="is-warning"
@@ -316,8 +309,6 @@ export default connect(
 			isReconnectingSite: isReconnectingSite( state ),
 			licensingError: getLicensingError( state ),
 			hasConnectedOwner: hasConnectedOwner( state ),
-			siteAdminUrl: getSiteAdminUrl( state ),
-			startFreshEnabled: !! getModule( state, 'custom-css' )?.options?.replace,
 			showGoogleAnalyticsNotice:
 				window.Initial_State?.isGoogleAnalyticsActive &&
 				! isWoASite( state ) &&
