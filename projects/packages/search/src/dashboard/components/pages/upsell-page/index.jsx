@@ -1,9 +1,9 @@
-import { useLocale } from '@automattic/i18n-utils';
 import {
 	AdminPage,
 	Container,
 	Col,
 	PricingCard,
+	getUserLocale,
 	AdminSectionHero,
 	ProductPrice,
 	PricingTable,
@@ -156,7 +156,7 @@ const OldPricingComponent = ( { sendToCart } ) => {
 
 const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 	const siteDomain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
-	const localeSlug = useLocale();
+	const localeSlug = getUserLocale();
 	const priceBefore = useSelect( select => select( STORE_ID ).getPriceBefore() / 12, [] );
 	const priceAfter = useSelect( select => select( STORE_ID ).getPriceAfter() / 12, [] );
 	const priceCurrencyCode = useSelect( select => select( STORE_ID ).getPriceCurrencyCode(), [] );
