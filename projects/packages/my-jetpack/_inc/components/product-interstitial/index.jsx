@@ -16,6 +16,7 @@ import React, { useCallback, useEffect } from 'react';
 /**
  * Internal dependencies
  */
+import { useParams } from 'react-router-dom';
 import { MyJetpackRoutes } from '../../constants';
 import useActivate from '../../data/products/use-activate';
 import useProduct from '../../data/products/use-product';
@@ -393,9 +394,7 @@ export { default as JetpackAiInterstitial } from './jetpack-ai';
  */
 export function ProtectInterstitial() {
 	// Get the feature query parameter from the URL.
-	const queryString = window.location.search;
-	const searchParams = new URLSearchParams( queryString );
-	const feature = searchParams.get( 'feature' );
+	const { feature } = useParams();
 
 	return <ProductInterstitial slug="protect" feature={ feature } installsPlugin={ true } />;
 }
